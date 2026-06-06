@@ -3,12 +3,12 @@ import { useParams, useNavigate, Link } from 'react-router-dom'
 import {
   ChevronRight, Folder, FileText, Plus,
   Pencil, Trash, Image as ImageIcon, Sparkles,
-  ArrowUp, ArrowDown, Pin
+  ArrowUp, ArrowDown, Pin, GripVertical
 } from 'lucide-react'
-import type { VibeSystem, Item } from '../types'
+import type { VibeSystem, Item, Space } from '../types'
 import {
   listChildSpaces, listItemsBySpace, getSpacePath,
-  updateSpace, deleteSpace, reorderSpaceItems
+  updateSpace, deleteSpace, reorderSpaceItems, reorderChildSpaces
 } from '../store'
 import { format } from '../utils/date'
 import { OutlineCreator } from '../components/OutlineCreator'
@@ -156,37 +156,28 @@ export function SpaceView({ system, onChange }: Props) {
         {/* 分类（卡片）—— 仅目录页有，分类页跳过 */}
         {space.parentId === null && (
           <div className="mb-8">
-            <div className="text-xs text-ink-500 font-medium mb-3 flex items-center gap-1.5">
-              <Folder size={11} /> 分类（{children.length}）
+            <div className="flex items-center justify-between mb-3">
+              <div className="text-xs text-ink-500 font-medium flex items-center gap-1.5">
+                <Folder size={11} /> 分类（{children.length}）
+              </div>
+              {children.length > 1 && (
+                <span className="text-[10px] text-ink-400">拖拽卡片调整顺序</span>
+              )}
             </div>
             {children.length === 0 ? (
               <div className="text-center py-10 text-ink-400 border border-dashed rounded-xl text-sm">
                 还没有分类。点击标题右侧的 <Plus size={12} className="inline -mt-0.5" /> 新建一个。
               </div>
             ) : (
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-                {children.map(c => {
-                  const cnt = listItemsBySpace(system, c.id).length
-                  return (
-                    <div
-                      key={c.id}
-                      onClick={() => navigate(`/v/${c.id}`)}
-                      className="group p-4 rounded-xl border border-ink-200 bg-gradient-to-br from-white to-ink-50/50 hover:border-indigo-300 hover:shadow-md cursor-pointer transition relative overflow-hidden"
-                    >
-                      <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-indigo-100/40 to-purple-100/40 rounded-full -translate-y-8 translate-x-8 group-hover:scale-110 transition-transform" />
-                      <div className="relative">
-                        <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-500 text-white flex items-center justify-center mb-2 shadow-sm group-hover:scale-105 transition">
-                          <Folder size={18} />
-                        </div>
-                        <h3 className="font-semibold text-ink-800 truncate mb-0.5">{c.name}</h3>
-                        <div className="text-[11px] text-ink-500">
-                          {cnt} 篇
-                        </div>
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
+              <DraggableCategoryGrid
+                children_={children}
+                system={system}
+                onReorder={(from, to) => {
+                  reorderChildSpaces(system, space.id, from, to)
+                  onChange({ ...system })
+                }}
+                onClick={(id) => navigate(`/v/${id}`)}
+              />
             )}
           </div>
         )}
@@ -322,6 +313,91 @@ function ItemRow({ item, index, total, onClick, onMoveUp, onMoveDown, onDelete }
           <Trash size={12} />
         </button>
       </div>
+    </div>
+  )
+}
+
+function DraggableCategoryGrid({ children_, system, onReorder, onClick }: {
+  children_: Space[]
+  system: VibeSystem
+  onReorder: (fromId: string, toId: string) => void
+  onClick: (id: string) => void
+}) {
+  const [draggingId, setDraggingId] = useState<string | null>(null)
+  const [overId, setOverId] = useState<string | null>(null)
+
+  function handleDragStart(e: React.DragEvent, id: string) {
+    setDraggingId(id)
+    e.dataTransfer.effectAllowed = 'move'
+    e.dataTransfer.setData('text/plain', id)
+  }
+
+  function handleDragOver(e: React.DragEvent, id: string) {
+    e.preventDefault()
+    e.dataTransfer.dropEffect = 'move'
+    if (id !== overId) setOverId(id)
+  }
+
+  function handleDragLeave() {
+    setOverId(null)
+  }
+
+  function handleDrop(e: React.DragEvent, targetId: string) {
+    e.preventDefault()
+    const fromId = e.dataTransfer.getData('text/plain')
+    if (fromId && fromId !== targetId) {
+      onReorder(fromId, targetId)
+    }
+    setDraggingId(null)
+    setOverId(null)
+  }
+
+  function handleDragEnd() {
+    setDraggingId(null)
+    setOverId(null)
+  }
+
+  return (
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+      {children_.map(c => {
+        const cnt = listItemsBySpace(system, c.id).length
+        const isDragging = draggingId === c.id
+        const isOver = overId === c.id && draggingId !== c.id
+
+        return (
+          <div
+            key={c.id}
+            draggable
+            onDragStart={(e) => handleDragStart(e, c.id)}
+            onDragOver={(e) => handleDragOver(e, c.id)}
+            onDragLeave={handleDragLeave}
+            onDrop={(e) => handleDrop(e, c.id)}
+            onDragEnd={handleDragEnd}
+            onClick={() => onClick(c.id)}
+            className={`group p-4 rounded-xl border bg-gradient-to-br from-white to-ink-50/50 cursor-pointer transition relative overflow-hidden ${
+              isDragging
+                ? 'opacity-40 border-indigo-400'
+                : isOver
+                ? 'border-indigo-500 ring-2 ring-indigo-200 shadow-lg scale-[1.02]'
+                : 'border-ink-200 hover:border-indigo-300 hover:shadow-md'
+            }`}
+          >
+            <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-indigo-100/40 to-purple-100/40 rounded-full -translate-y-8 translate-x-8 group-hover:scale-110 transition-transform" />
+            <div className="absolute top-2 right-2 text-ink-300 opacity-0 group-hover:opacity-100 cursor-grab active:cursor-grabbing">
+              <GripVertical size={14} />
+            </div>
+            <div className="relative">
+              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-500 text-white flex items-center justify-center mb-2 shadow-sm group-hover:scale-105 transition">
+                <Folder size={18} />
+              </div>
+              <h3 className="font-semibold text-ink-800 truncate mb-0.5">{c.name}</h3>
+              <div className="text-[11px] text-ink-500">
+                {cnt} 篇
+              </div>
+            </div>
+          </div>
+        )
+      })}
     </div>
   )
 }

@@ -226,3 +226,15 @@ export function reorderTopSpaces(sys: VibeSystem, fromId: string, toId: string) 
   })
   saveSystem(sys)
 }
+
+// 调整某个目录下的分类顺序
+export function reorderChildSpaces(sys: VibeSystem, parentId: string, fromId: string, toId: string) {
+  const children = listChildSpaces(sys, parentId)
+  const fromIdx = children.findIndex(s => s.id === fromId)
+  const toIdx = children.findIndex(s => s.id === toId)
+  if (fromIdx < 0 || toIdx < 0 || fromIdx === toIdx) return
+  const reordered = children.filter(s => s.id !== fromId)
+  reordered.splice(toIdx, 0, children[fromIdx])
+  reordered.forEach((s, i) => { s.order = i })
+  saveSystem(sys)
+}
