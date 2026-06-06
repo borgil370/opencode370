@@ -1,0 +1,56 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html, body, #root {
+    height: 100%;
+  }
+  body {
+    font-feature-settings: 'cv11', 'ss01';
+  }
+}
+
+@layer utilities {
+  .scrollbar-thin {
+    scrollbar-width: thin;
+  }
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: rgba(100, 116, 139, 0.3);
+    border-radius: 3px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background: rgba(100, 116, 139, 0.5);
+  }
+  .glass {
+    backdrop-filter: blur(12px);
+    background: rgba(255, 255, 255, 0.7);
+  }
+  .gradient-text {
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+}
+
+/* Markdown 样式 */
+.prose-vc h1 { @apply text-2xl font-semibold mt-6 mb-3; }
+.prose-vc h2 { @apply text-xl font-semibold mt-5 mb-2; }
+.prose-vc h3 { @apply text-lg font-semibold mt-4 mb-2; }
+.prose-vc p { @apply my-2 leading-relaxed; }
+.prose-vc ul { @apply list-disc pl-5 my-2; }
+.prose-vc ol { @apply list-decimal pl-5 my-2; }
+.prose-vc code { @apply bg-ink-100 px-1.5 py-0.5 rounded text-sm font-mono text-pink-600; }
+.prose-vc pre { @apply bg-ink-900 text-ink-100 p-4 rounded-lg overflow-x-auto my-3; }
+.prose-vc pre code { @apply bg-transparent text-ink-100 p-0; }
+.prose-vc blockquote { @apply border-l-4 border-indigo-300 pl-4 italic text-ink-600 my-3; }
+.prose-vc a { @apply text-indigo-600 hover:underline; }
+.prose-vc hr { @apply my-4 border-ink-200; }
+.prose-vc table { @apply w-full border-collapse my-3; }
+.prose-vc th, .prose-vc td { @apply border border-ink-200 px-3 py-2; }
+.prose-vc th { @apply bg-ink-50 font-semibold; }
