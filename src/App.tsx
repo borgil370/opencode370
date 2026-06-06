@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Routes, Route, useNavigate, useLocation } from 'react-router-dom'
 import { Search, Sparkles } from 'lucide-react'
 import { Sidebar } from './components/Sidebar'
@@ -8,7 +8,7 @@ import { ItemView } from './pages/ItemView'
 import { SearchView } from './pages/SearchView'
 import { VibeCodingHome } from './pages/VibeCodingHome'
 import { SpaceView } from './pages/SpaceView'
-import { loadSystem } from './store'
+import { loadSystem, saveSystem } from './store'
 import type { VibeSystem } from './types'
 
 function App() {
@@ -16,6 +16,11 @@ function App() {
   const [query, setQuery] = useState('')
   const navigate = useNavigate()
   const loc = useLocation()
+
+  const persistAndSet = useCallback((next: VibeSystem) => {
+    saveSystem(next)
+    setSystem(next)
+  }, [])
 
   useEffect(() => {
     const handler = (e: StorageEvent) => {
@@ -110,15 +115,15 @@ function App() {
 
       {/* 下方：侧边栏 + 主内容 */}
       <div className="flex flex-1 overflow-hidden">
-        <Sidebar system={system} onChange={setSystem} />
+        <Sidebar system={system} onChange={persistAndSet} />
         <main className="flex-1 overflow-y-auto">
           <Routes>
-            <Route path="/" element={<HomeInput system={system} onChange={setSystem} />} />
-            <Route path="/c/:id" element={<CategoryView system={system} onChange={setSystem} />} />
-            <Route path="/i/:id" element={<ItemView system={system} onChange={setSystem} />} />
+            <Route path="/" element={<HomeInput system={system} onChange={persistAndSet} />} />
+            <Route path="/c/:id" element={<CategoryView system={system} onChange={persistAndSet} />} />
+            <Route path="/i/:id" element={<ItemView system={system} onChange={persistAndSet} />} />
             <Route path="/search" element={<SearchView system={system} />} />
-            <Route path="/vibe" element={<VibeCodingHome system={system} onChange={setSystem} />} />
-            <Route path="/v/:id" element={<SpaceView system={system} onChange={setSystem} />} />
+            <Route path="/vibe" element={<VibeCodingHome system={system} onChange={persistAndSet} />} />
+            <Route path="/v/:id" element={<SpaceView system={system} onChange={persistAndSet} />} />
           </Routes>
         </main>
       </div>
