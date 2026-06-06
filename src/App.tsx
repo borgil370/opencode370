@@ -57,11 +57,23 @@ function App() {
       <header className="h-14 border-b bg-white flex items-center px-6 gap-6 flex-shrink-0">
         {/* 左：Logo */}
         <div className="flex items-center gap-2 min-w-[260px]">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white shadow-sm">
-            <Sparkles size={16} />
-          </div>
+          <svg viewBox="0 0 32 32" className="w-8 h-8 drop-shadow-sm" aria-label="Vibe Tree">
+            <defs>
+              <linearGradient id="vtLogoGrad" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stopColor="#3b82f6" />
+                <stop offset="100%" stopColor="#8b5cf6" />
+              </linearGradient>
+            </defs>
+            <circle cx="16" cy="16" r="15" fill="url(#vtLogoGrad)" />
+            <g fill="#ffffff">
+              <polygon points="16,6 21.5,14 19,14 23,20 18.5,20 23,26 9,26 13.5,20 9,20 13,14 10.5,14" />
+              <rect x="14.6" y="26" width="2.8" height="2.4" rx="0.4" />
+            </g>
+          </svg>
           <div className="leading-tight">
-            <div className="font-semibold text-sm text-ink-800">VibeCoding</div>
+            <div className="font-extrabold text-base tracking-tight bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 bg-clip-text text-transparent">
+              Vibe Tree
+            </div>
             <div className="text-[10px] text-ink-500">系统操作树</div>
           </div>
         </div>
