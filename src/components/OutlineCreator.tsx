@@ -10,8 +10,8 @@ interface Props {
   system: VibeSystem
   onChange: (sys: VibeSystem) => void
   onClose: () => void
-  // 当前子层 ID（如果在某个子层页面创建）
-  // 留空 = 在 VibeCoding 顶级创建，用户从所有顶层子层中选
+  // 当前子层 ID（如果在某个目录/分类页面创建）
+  // 留空 = 在 VibeCoding 顶级创建，用户从所有顶层目录中选
   parentSpaceId?: string
   onCreated?: (itemId: string, spaceId: string) => void
 }
@@ -32,8 +32,8 @@ export function OutlineCreator({ system, onChange, onClose, parentSpaceId = '', 
   const parent = parentSpaceId ? system.spaces[parentSpaceId] : null
 
   // 可归档的选项：
-  // - 有 parentSpaceId：默认该子层，可切换到其他顶层子层
-  // - 无 parentSpaceId：所有顶层子层
+  // - 有 parentSpaceId：默认该目录/分类，可切换到其他目录
+  // - 无 parentSpaceId：所有顶层目录
   const allSubOptions: Array<Space & { depth: number }> = listTopSpaces(system).map(s => ({ ...s, depth: 0 }))
 
   // 实时调整 textarea
@@ -49,7 +49,7 @@ export function OutlineCreator({ system, onChange, onClose, parentSpaceId = '', 
     ? classify({ text, images })
     : null
 
-  // 实时推荐子层
+  // 实时推荐目录
   useEffect(() => {
     if (!classifyResult) {
       if (!parentSpaceId) {
@@ -125,7 +125,7 @@ export function OutlineCreator({ system, onChange, onClose, parentSpaceId = '', 
   async function save() {
     if (!text.trim() && images.length === 0) return
     if (!targetSpaceId) {
-      alert('请先选择归档的子层（笔记必须归属于某个子层）')
+      alert('请先选择归档的目录（笔记必须归属于某个目录或分类）')
       return
     }
 
@@ -210,8 +210,8 @@ export function OutlineCreator({ system, onChange, onClose, parentSpaceId = '', 
             </div>
             <div className="text-[11px] text-ink-500">
               {parent
-                ? `默认归档到「${parent.name}」，可改选其他子层`
-                : '必须归档到某个顶层子层'}
+                ? `默认归档到「${parent.name}」，可改选其他目录或分类`
+                : '必须归档到某个目录'}
             </div>
           </div>
           <button
@@ -311,11 +311,11 @@ export function OutlineCreator({ system, onChange, onClose, parentSpaceId = '', 
             </div>
           )}
 
-          {/* 必选：子层 */}
+          {/* 必选：目录或分类 */}
           <div className="mx-5 mb-3">
             <label className="text-[11px] text-ink-700 font-medium mb-1.5 flex items-center gap-1">
               <Folder size={11} />
-              归档到子层 <span className="text-red-500">*</span>
+              归档到目录 <span className="text-red-500">*</span>
               {autoRecommended && targetSpaceId && (
                 <span className="text-emerald-600 font-normal">（已自动推荐）</span>
               )}
@@ -325,7 +325,7 @@ export function OutlineCreator({ system, onChange, onClose, parentSpaceId = '', 
               <div className="p-3 rounded-lg border border-amber-200 bg-amber-50 text-amber-800 text-xs flex items-start gap-2">
                 <AlertCircle size={14} className="flex-shrink-0 mt-0.5" />
                 <div>
-                  还没有顶层子层。请先在侧边栏 VibeCoding 下创建子层。
+                  还没有目录。请先在侧边栏 VibeCoding 下创建目录。
                 </div>
               </div>
             ) : (
@@ -351,7 +351,7 @@ export function OutlineCreator({ system, onChange, onClose, parentSpaceId = '', 
                     <span className="text-sm flex-1 truncate">
                       {s.name}
                       {parent && s.id === parent.id && (
-                        <span className="ml-1.5 text-[10px] text-emerald-600">（当前子层）</span>
+                        <span className="ml-1.5 text-[10px] text-emerald-600">（当前目录）</span>
                       )}
                     </span>
                     <span className="text-[10px] text-ink-400">{listItemsBySpace(system, s.id).length} 篇</span>
@@ -403,7 +403,7 @@ export function OutlineCreator({ system, onChange, onClose, parentSpaceId = '', 
             ) : (
               <>
                 <Send size={12} />
-                保存到子层
+                保存到目录
               </>
             )}
           </button>
@@ -435,7 +435,7 @@ function CategoryBadge({ categoryId }: { categoryId: string }) {
   )
 }
 
-// 智能推荐：扫描 parent 下所有后代子层（或顶级所有顶层子层）
+// 智能推荐：扫描 parent 下所有后代分类（或顶级所有目录）
 function recommendTargetSpace(system: VibeSystem, text: string, title: string, parentId: string | null): Space | null {
   const all: Array<Space & { depth: number }> = parentId
     ? flattenDescendantSpaces(system, parentId)

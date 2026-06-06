@@ -135,7 +135,7 @@ export function ItemView({ system, onChange }: Props) {
           </div>
         </div>
 
-        {/* 面包屑：VibeCoding > 子层路径 */}
+        {/* 面包屑：VibeCoding > 目录/分类路径 */}
         {spacePath.length > 0 && (
           <div className="flex items-center gap-1 text-xs text-ink-500 mb-3 flex-wrap">
             <Link to="/vibe" className="hover:text-indigo-600">VibeCoding</Link>
@@ -244,7 +244,7 @@ export function ItemView({ system, onChange }: Props) {
 
                 <div>
                   <div className="text-xs text-ink-500 mb-2 flex items-center gap-1">
-                    <Folder size={11} /> 归档到 VibeCoding 子层：
+                    <Folder size={11} /> 归档到 VibeCoding 目录：
                   </div>
                   <div className="flex flex-wrap gap-1.5">
                     {item.spaceId && (
@@ -252,7 +252,7 @@ export function ItemView({ system, onChange }: Props) {
                         onClick={() => moveToSpace(undefined)}
                         className="text-xs px-2.5 py-1 rounded-md border border-red-200 text-red-600 hover:bg-red-50 transition"
                       >
-                        移出子层
+                        移出目录
                       </button>
                     )}
                     {flattenSpaces(system, null).map(s => (
@@ -376,7 +376,7 @@ function Editor({ draft, setDraft, system }: { draft: Item, setDraft: (i: Item) 
       </div>
 
       <div className="grid grid-cols-2 gap-2">
-        <label className="text-xs text-ink-500">VibeCoding 子层</label>
+          <label className="text-xs text-ink-500">VibeCoding 目录</label>
         <label className="text-xs text-ink-500">源</label>
         <select
           value={draft.spaceId || ''}

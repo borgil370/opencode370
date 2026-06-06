@@ -36,7 +36,7 @@ export function SpaceView({ system, onChange }: Props) {
       <div className="flex-1 flex items-center justify-center text-ink-500">
         <div className="text-center">
           <div className="text-5xl mb-3">📁</div>
-          <p>子层不存在</p>
+          <p>目录不存在</p>
           <Link to="/vibe" className="mt-3 text-sm text-indigo-600 hover:underline">
             返回 VibeCoding
           </Link>
@@ -56,11 +56,28 @@ export function SpaceView({ system, onChange }: Props) {
   }
 
   function remove() {
-    if (!confirm(`删除「${space.name}」及其子层和所有笔记？`)) return
+    if (!confirm(`删除「${space.name}」${space.parentId === null ? '及其所有分类' : ''}和所有笔记？`)) return
     deleteSpace(system, space.id)
     onChange({ ...system })
     if (path.length > 1) navigate(`/v/${path[path.length - 2].id}`)
     else navigate('/vibe')
+  }
+
+  function createCategory() {
+    const name = prompt('分类名称：')?.trim()
+    if (!name) return
+    const id = Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4)
+    const siblings = listChildSpaces(system, space.id)
+    system.spaces[id] = {
+      id,
+      name,
+      parentId: space.id,
+      icon: 'Folder',
+      createdAt: Date.now(),
+      order: siblings.length,
+    }
+    onChange({ ...system })
+    navigate(`/v/${id}`)
   }
 
   function move(it: Item, dir: 'up' | 'down') {
@@ -111,6 +128,15 @@ export function SpaceView({ system, onChange }: Props) {
             <h1 className="text-2xl font-bold flex-1">{space.name}</h1>
           )}
           <span className="text-sm text-ink-400">{items.length} 篇</span>
+          {space.parentId === null && (
+            <button
+              onClick={createCategory}
+              className="p-1.5 text-ink-400 hover:text-indigo-600 hover:bg-indigo-50 rounded"
+              title="新建分类"
+            >
+              <Plus size={14} />
+            </button>
+          )}
           <button
             onClick={() => setRenaming(true)}
             className="p-1.5 text-ink-400 hover:text-ink-700 hover:bg-ink-100 rounded"
@@ -127,35 +153,41 @@ export function SpaceView({ system, onChange }: Props) {
           </button>
         </div>
 
-        {/* 子层（卡片） */}
-        {children.length > 0 && (
+        {/* 分类（卡片）—— 仅目录页有，分类页跳过 */}
+        {space.parentId === null && (
           <div className="mb-8">
             <div className="text-xs text-ink-500 font-medium mb-3 flex items-center gap-1.5">
-              <Folder size={11} /> 子层（{children.length}）
+              <Folder size={11} /> 分类（{children.length}）
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-              {children.map(c => {
-                const cnt = listItemsBySpace(system, c.id).length
-                return (
-                  <div
-                    key={c.id}
-                    onClick={() => navigate(`/v/${c.id}`)}
-                    className="group p-4 rounded-xl border border-ink-200 bg-gradient-to-br from-white to-ink-50/50 hover:border-indigo-300 hover:shadow-md cursor-pointer transition relative overflow-hidden"
-                  >
-                    <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-indigo-100/40 to-purple-100/40 rounded-full -translate-y-8 translate-x-8 group-hover:scale-110 transition-transform" />
-                    <div className="relative">
-                      <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-500 text-white flex items-center justify-center mb-2 shadow-sm group-hover:scale-105 transition">
-                        <Folder size={18} />
-                      </div>
-                      <h3 className="font-semibold text-ink-800 truncate mb-0.5">{c.name}</h3>
-                      <div className="text-[11px] text-ink-500">
-                        {cnt} 篇
+            {children.length === 0 ? (
+              <div className="text-center py-10 text-ink-400 border border-dashed rounded-xl text-sm">
+                还没有分类。点击标题右侧的 <Plus size={12} className="inline -mt-0.5" /> 新建一个。
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                {children.map(c => {
+                  const cnt = listItemsBySpace(system, c.id).length
+                  return (
+                    <div
+                      key={c.id}
+                      onClick={() => navigate(`/v/${c.id}`)}
+                      className="group p-4 rounded-xl border border-ink-200 bg-gradient-to-br from-white to-ink-50/50 hover:border-indigo-300 hover:shadow-md cursor-pointer transition relative overflow-hidden"
+                    >
+                      <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-indigo-100/40 to-purple-100/40 rounded-full -translate-y-8 translate-x-8 group-hover:scale-110 transition-transform" />
+                      <div className="relative">
+                        <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-500 text-white flex items-center justify-center mb-2 shadow-sm group-hover:scale-105 transition">
+                          <Folder size={18} />
+                        </div>
+                        <h3 className="font-semibold text-ink-800 truncate mb-0.5">{c.name}</h3>
+                        <div className="text-[11px] text-ink-500">
+                          {cnt} 篇
+                        </div>
                       </div>
                     </div>
-                  </div>
-                )
-              })}
-            </div>
+                  )
+                })}
+              </div>
+            )}
           </div>
         )}
 
@@ -176,7 +208,7 @@ export function SpaceView({ system, onChange }: Props) {
           {items.length === 0 ? (
             <div className="text-center py-16 text-ink-400 border border-dashed rounded-xl">
               <ImageIcon size={32} className="mx-auto mb-2 opacity-50" />
-              <p className="text-sm">这个子层还没有笔记</p>
+              <p className="text-sm">这个{space.parentId === null ? '目录' : '分类'}还没有笔记</p>
               <p className="text-xs mt-1">点击右上「新增笔记」开始</p>
             </div>
           ) : (

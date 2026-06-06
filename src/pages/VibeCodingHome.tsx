@@ -25,13 +25,13 @@ export function VibeCodingHome({ system, onChange }: Props) {
         <div className="text-center mb-8 animate-fade-in">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-emerald-50 to-cyan-50 text-emerald-700 text-xs font-medium mb-3">
             <ScanLine size={12} />
-            图片 → 文字 → 大纲 → 子层
+            图片 → 文字 → 大纲 → 目录
           </div>
           <h1 className="text-3xl font-bold mb-2">
             <span className="gradient-text">VibeCoding 工作区</span>
           </h1>
           <p className="text-ink-500 text-sm">
-            粘贴 / 拖拽 / 上传图片，自动 OCR 识别并整理成大纲笔记，<b>自动归档</b>到对应子层。
+            粘贴 / 拖拽 / 上传图片，自动 OCR 识别并整理成大纲笔记，<b>自动归档</b>到对应目录。
           </p>
         </div>
 
@@ -42,14 +42,14 @@ export function VibeCodingHome({ system, onChange }: Props) {
           </div>
           <h2 className="text-lg font-semibold mb-1">新增图片笔记</h2>
           <p className="text-sm text-ink-500 mb-4">
-            上传图片 → OCR 识别 → 自动判断归档到合适的子层
+            上传图片 → OCR 识别 → 自动判断归档到合适的目录
           </p>
           <button
             onClick={() => setShowCreator(true)}
             disabled={topSpaces.length === 0}
             className="px-5 py-2 rounded-md bg-gradient-to-r from-indigo-500 to-purple-500 text-white text-sm font-medium shadow-sm hover:shadow disabled:opacity-40 disabled:cursor-not-allowed transition"
           >
-            {topSpaces.length === 0 ? '请先在侧边栏创建子层' : '开始 →'}
+            {topSpaces.length === 0 ? '请先在侧边栏创建目录' : '开始 →'}
           </button>
         </div>
 
@@ -57,7 +57,7 @@ export function VibeCodingHome({ system, onChange }: Props) {
           <div className="mt-4 p-3 rounded-lg border border-amber-200 bg-amber-50 text-amber-800 text-xs flex items-start gap-2">
             <Inbox size={14} className="flex-shrink-0 mt-0.5" />
             <div>
-              还没有任何子层。请到左侧 <b>VibeCoding</b> 区域点击 <b>+</b> 创建子层（如：教程、灵感、笔记…），才能保存笔记。
+              还没有任何目录。请到左侧 <b>VibeCoding</b> 区域点击 <b>+</b> 创建目录（如：教程、灵感、笔记…），才能保存笔记。
             </div>
           </div>
         )}
@@ -66,13 +66,13 @@ export function VibeCodingHome({ system, onChange }: Props) {
         <div className="mt-8 grid grid-cols-3 gap-3">
           <div className="p-3 rounded-xl border border-ink-200 bg-white text-center">
             <div className="text-2xl font-bold text-indigo-600">{topSpaces.length}</div>
-            <div className="text-xs text-ink-500 mt-0.5">顶层子层</div>
+            <div className="text-xs text-ink-500 mt-0.5">目录</div>
           </div>
           <div className="p-3 rounded-xl border border-ink-200 bg-white text-center">
             <div className="text-2xl font-bold text-purple-600">
               {Object.values(system.spaces).filter(s => s.parentId).length}
             </div>
-            <div className="text-xs text-ink-500 mt-0.5">嵌套子层</div>
+            <div className="text-xs text-ink-500 mt-0.5">分类</div>
           </div>
           <div className="p-3 rounded-xl border border-ink-200 bg-white text-center">
             <div className="text-2xl font-bold text-emerald-600">{totalItems}</div>
@@ -80,16 +80,16 @@ export function VibeCodingHome({ system, onChange }: Props) {
           </div>
         </div>
 
-        {/* 顶层子层（可拖拽） */}
+        {/* 目录（可拖拽） */}
         <div className="mt-8">
           <div className="flex items-center justify-between mb-3">
-            <h2 className="text-sm font-medium text-ink-700">顶层子层</h2>
+            <h2 className="text-sm font-medium text-ink-700">目录</h2>
             <span className="text-[10px] text-ink-400">拖拽卡片调整顺序</span>
           </div>
 
           {topSpaces.length === 0 ? (
             <div className="text-center py-10 text-ink-400 text-sm border border-dashed rounded-xl">
-              还没有子层。先在左侧创建几个吧～
+              还没有目录。先在左侧创建几个吧～
             </div>
           ) : (
             <DraggableSpaceGrid
@@ -200,7 +200,7 @@ function DraggableSpaceGrid({ spaces, system, onReorder, onClick }: {
               </div>
               <h3 className="font-semibold text-ink-800 truncate mb-0.5">{s.name}</h3>
               <div className="text-[11px] text-ink-500">
-                {cnt} 篇{sub > 0 ? ` · ${sub} 子层` : ''}
+                {cnt} 篇{sub > 0 ? ` · ${sub} 分类` : ''}
               </div>
               {recent && (
                 <div className="mt-1.5 pt-1.5 border-t border-ink-100/80 text-[10px] text-ink-400 flex items-center gap-1">

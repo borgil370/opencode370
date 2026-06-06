@@ -76,12 +76,12 @@ export function Sidebar({ system, onChange }: Props) {
             <FolderTree size={11} />
             VibeCoding
           </span>
-          <NewSpaceButton system={system} onChange={onChange} parentId={null} />
+          <NewSpaceButton system={system} onChange={onChange} parentId={null} kind="dir" />
         </div>
 
         {topSpaces.length === 0 ? (
           <div className="px-3 py-3 text-xs text-ink-400 leading-relaxed">
-            创建子层来组织图片笔记大纲
+            点击 + 创建第一个目录
           </div>
         ) : (
           <div className="mt-1">
@@ -139,7 +139,7 @@ function SpaceNode({ space, system, onChange, depth }: {
   }
 
   function remove() {
-    if (!confirm(`确定删除「${space.name}」及其所有子层？笔记会移到「首页」。`)) return
+    if (!confirm(`确定删除「${space.name}」${space.parentId === null ? '及其所有分类' : ''}？笔记会移到「首页」。`)) return
     deleteSpace(system, space.id)
     onChange({ ...system })
     setShowMenu(false)
@@ -190,6 +190,12 @@ function SpaceNode({ space, system, onChange, depth }: {
           </span>
         )}
 
+        {space.parentId === null && (
+          <div className="opacity-0 group-hover:opacity-100">
+            <NewSpaceButton system={system} onChange={onChange} parentId={space.id} kind="cat" />
+          </div>
+        )}
+
         <div className="opacity-0 group-hover:opacity-100 relative">
           <button
             onClick={() => setShowMenu(!showMenu)}
@@ -226,13 +232,17 @@ function SpaceNode({ space, system, onChange, depth }: {
   )
 }
 
-function NewSpaceButton({ system, onChange, parentId }: {
+function NewSpaceButton({ system, onChange, parentId, kind = 'dir' }: {
   system: VibeSystem
   onChange: (s: VibeSystem) => void
   parentId: string | null
+  kind?: 'dir' | 'cat'
 }) {
   const [open, setOpen] = useState(false)
   const [name, setName] = useState('')
+  const label = kind === 'cat' ? '分类' : '目录'
+  const title = kind === 'cat' ? '新建分类' : '新建目录'
+  const placeholder = kind === 'cat' ? '分类名称…' : '目录名称…'
 
   function create() {
     const n = name.trim()
@@ -255,8 +265,39 @@ function NewSpaceButton({ system, onChange, parentId }: {
   }
 
   if (parentId !== null) {
-    // 子层入口由 inline 组件渲染
-    return null
+    // 内联模式：用于在某个目录节点旁内嵌「+」直接创建子层
+    return (
+      <div className="relative">
+        <button
+          onClick={(e) => { e.preventDefault(); e.stopPropagation(); setOpen(!open) }}
+          className="p-0.5 text-ink-400 hover:text-indigo-600 hover:bg-indigo-50 rounded"
+          title={title}
+        >
+          <Plus size={11} />
+        </button>
+        {open && (
+          <>
+            <div className="fixed inset-0 z-10" onClick={() => setOpen(false)} />
+            <div className="absolute left-full top-0 ml-1 z-20 bg-white border rounded-md shadow-lg p-2 w-44">
+              <input
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') create()
+                  if (e.key === 'Escape') setOpen(false)
+                }}
+                autoFocus
+                placeholder={placeholder}
+                className="w-full px-2 py-1 text-xs border rounded outline-none focus:border-indigo-400"
+              />
+              <div className="text-[10px] text-ink-400 mt-1.5 px-1">
+                Enter 创建，Esc 关闭
+              </div>
+            </div>
+          </>
+        )}
+      </div>
+    )
   }
 
   return (
@@ -264,7 +305,7 @@ function NewSpaceButton({ system, onChange, parentId }: {
       <button
         onClick={() => setOpen(!open)}
         className="p-0.5 text-ink-400 hover:text-indigo-600 hover:bg-indigo-50 rounded"
-        title="新建子层"
+        title={title}
       >
         <Plus size={12} />
       </button>
@@ -275,9 +316,12 @@ function NewSpaceButton({ system, onChange, parentId }: {
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
-              onKeyDown={(e) => { if (e.key === 'Enter') create() }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') create()
+                if (e.key === 'Escape') setOpen(false)
+              }}
               autoFocus
-              placeholder="子层名称…"
+              placeholder={placeholder}
               className="w-full px-2 py-1 text-xs border rounded outline-none focus:border-indigo-400"
             />
             <div className="text-[10px] text-ink-400 mt-1.5 px-1">
