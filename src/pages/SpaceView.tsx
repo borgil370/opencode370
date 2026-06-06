@@ -24,6 +24,8 @@ export function SpaceView({ system, onChange }: Props) {
   const [showCreator, setShowCreator] = useState(false)
   const [renaming, setRenaming] = useState(false)
   const [draftName, setDraftName] = useState('')
+  const [showNewCategory, setShowNewCategory] = useState(false)
+  const [newCategoryName, setNewCategoryName] = useState('')
 
   const space = system.spaces[id]
 
@@ -64,7 +66,7 @@ export function SpaceView({ system, onChange }: Props) {
   }
 
   function createCategory() {
-    const name = prompt('分类名称：')?.trim()
+    const name = newCategoryName.trim()
     if (!name) return
     const id = Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4)
     const siblings = listChildSpaces(system, space.id)
@@ -77,6 +79,8 @@ export function SpaceView({ system, onChange }: Props) {
       order: siblings.length,
     }
     onChange({ ...system })
+    setNewCategoryName('')
+    setShowNewCategory(false)
     navigate(`/v/${id}`)
   }
 
@@ -129,13 +133,36 @@ export function SpaceView({ system, onChange }: Props) {
           )}
           <span className="text-sm text-ink-400">{items.length} 篇</span>
           {space.parentId === null && (
-            <button
-              onClick={createCategory}
-              className="p-1.5 text-ink-400 hover:text-indigo-600 hover:bg-indigo-50 rounded"
-              title="新建分类"
-            >
-              <Plus size={14} />
-            </button>
+            <div className="relative">
+              <button
+                onClick={() => { setShowNewCategory(!showNewCategory); setNewCategoryName('') }}
+                className="p-1.5 text-ink-400 hover:text-indigo-600 hover:bg-indigo-50 rounded"
+                title="新建分类"
+              >
+                <Plus size={14} />
+              </button>
+              {showNewCategory && (
+                <>
+                  <div className="fixed inset-0 z-10" onClick={() => setShowNewCategory(false)} />
+                  <div className="absolute right-0 top-9 z-20 bg-white border rounded-md shadow-lg p-2 w-48">
+                    <input
+                      value={newCategoryName}
+                      onChange={(e) => setNewCategoryName(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') createCategory()
+                        if (e.key === 'Escape') setShowNewCategory(false)
+                      }}
+                      autoFocus
+                      placeholder="分类名称…"
+                      className="w-full px-2 py-1 text-xs border rounded outline-none focus:border-indigo-400"
+                    />
+                    <div className="text-[10px] text-ink-400 mt-1.5 px-1">
+                      Enter 创建，Esc 关闭
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
           )}
           <button
             onClick={() => setRenaming(true)}
