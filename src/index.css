@@ -39,18 +39,29 @@
 }
 
 /* Markdown 样式 */
-.prose-vc h1 { @apply text-2xl font-semibold mt-6 mb-3; }
-.prose-vc h2 { @apply text-xl font-semibold mt-5 mb-2; }
-.prose-vc h3 { @apply text-lg font-semibold mt-4 mb-2; }
-.prose-vc p { @apply my-2 leading-relaxed; }
-.prose-vc ul { @apply list-disc pl-5 my-2; }
-.prose-vc ol { @apply list-decimal pl-5 my-2; }
-.prose-vc code { @apply bg-ink-100 px-1.5 py-0.5 rounded text-sm font-mono text-pink-600; }
-.prose-vc pre { @apply bg-ink-900 text-ink-100 p-4 rounded-lg overflow-x-auto my-3; }
-.prose-vc pre code { @apply bg-transparent text-ink-100 p-0; }
-.prose-vc blockquote { @apply border-l-4 border-indigo-300 pl-4 italic text-ink-600 my-3; }
+.prose-vc {
+  @apply text-ink-800 text-[15px] leading-[1.85];
+  max-width: 100%;
+}
+.prose-vc > * + * { @apply mt-3; }
+.prose-vc h1 { @apply text-[26px] font-bold text-ink-900 mt-8 mb-4 pb-2 border-b border-ink-200 leading-tight; }
+.prose-vc h2 { @apply text-[22px] font-bold text-ink-900 mt-7 mb-3 leading-snug; }
+.prose-vc h3 { @apply text-[18px] font-semibold text-ink-800 mt-5 mb-2; }
+.prose-vc h4 { @apply text-[16px] font-semibold text-ink-800 mt-4 mb-2; }
+.prose-vc p { @apply leading-[1.85] text-ink-700; }
+.prose-vc ul { @apply list-disc pl-6 space-y-1.5; }
+.prose-vc ol { @apply list-decimal pl-6 space-y-1.5; }
+.prose-vc li > p { @apply my-0; }
+.prose-vc li { @apply leading-[1.85]; }
+.prose-vc strong { @apply font-semibold text-ink-900; }
+.prose-vc em { @apply italic; }
+.prose-vc code { @apply bg-ink-100 px-1.5 py-0.5 rounded text-[13px] font-mono text-pink-600; }
+.prose-vc pre { @apply bg-ink-900 text-ink-100 p-4 rounded-lg overflow-x-auto my-4 text-[13px]; }
+.prose-vc pre code { @apply bg-transparent text-ink-100 p-0 text-[13px]; }
+.prose-vc blockquote { @apply border-l-4 border-indigo-300 pl-4 py-1 italic text-ink-600 my-4 bg-indigo-50/30 rounded-r; }
 .prose-vc a { @apply text-indigo-600 hover:underline; }
-.prose-vc hr { @apply my-4 border-ink-200; }
-.prose-vc table { @apply w-full border-collapse my-3; }
+.prose-vc hr { @apply my-6 border-ink-200; }
+.prose-vc table { @apply w-full border-collapse my-4 text-sm; }
 .prose-vc th, .prose-vc td { @apply border border-ink-200 px-3 py-2; }
 .prose-vc th { @apply bg-ink-50 font-semibold; }
+.prose-vc img { @apply max-w-full rounded-lg my-4; }

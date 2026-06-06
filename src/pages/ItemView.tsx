@@ -94,141 +94,143 @@ export function ItemView({ system, onChange }: Props) {
   return (
     <div className="flex-1 overflow-y-auto">
       <div className="max-w-3xl mx-auto px-8 py-8">
-        <div className="flex items-center justify-end mb-4">
-          <div className="flex items-center gap-1">
-            {!isTrash && !editing && (
-              <>
-                <IconBtn onClick={togglePin} title={item.pinned ? '取消置顶' : '置顶'}>
-                  <Pin size={14} className={item.pinned ? 'text-amber-500 fill-amber-500' : ''} />
-                </IconBtn>
-                <IconBtn onClick={copy} title="复制全文">
-                  <Copy size={14} />
-                </IconBtn>
-                <IconBtn onClick={() => setEditing(true)} title="编辑">
-                  <Edit3 size={14} />
-                </IconBtn>
-                <IconBtn onClick={trash} title="移到回收站" danger>
-                  <Trash2 size={14} />
-                </IconBtn>
-              </>
-            )}
-            {isTrash && (
-              <>
-                <IconBtn onClick={restore} title="恢复">
-                  <RotateCcw size={14} />
-                </IconBtn>
-                <IconBtn onClick={purge} title="彻底删除" danger>
-                  <Trash2 size={14} />
-                </IconBtn>
-              </>
-            )}
-            {editing && (
-              <>
-                <IconBtn onClick={() => { setEditing(false); setDraft(item) }} title="取消">
-                  <X size={14} />
-                </IconBtn>
-                <IconBtn onClick={save} title="保存">
-                  <Save size={14} />
-                </IconBtn>
-              </>
-            )}
+        {/* Sticky 顶部：操作 + 面包屑 + 标题 */}
+        <div className="sticky top-0 z-10 -mx-8 px-8 pt-2 pb-4 bg-ink-50/85 backdrop-blur border-b border-ink-200/60 mb-8">
+          <div className="flex items-center justify-between mb-3">
+            <div>
+              {spacePath.length > 0 && (
+                <div className="flex items-center gap-1 text-xs text-ink-500 flex-wrap">
+                  <Link to="/vibe" className="hover:text-indigo-600">VibeCoding</Link>
+                  {spacePath.map((p, i) => (
+                    <span key={p.id} className="flex items-center gap-1">
+                      <ChevronRight size={10} />
+                      {i === spacePath.length - 1 ? (
+                        <span className="text-ink-700 font-medium">{p.name}</span>
+                      ) : (
+                        <Link to={`/v/${p.id}`} className="hover:text-indigo-600">{p.name}</Link>
+                      )}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+            <div className="flex items-center gap-1">
+              {!isTrash && !editing && (
+                <>
+                  <IconBtn onClick={togglePin} title={item.pinned ? '取消置顶' : '置顶'}>
+                    <Pin size={14} className={item.pinned ? 'text-amber-500 fill-amber-500' : ''} />
+                  </IconBtn>
+                  <IconBtn onClick={copy} title="复制全文">
+                    <Copy size={14} />
+                  </IconBtn>
+                  <IconBtn onClick={() => setEditing(true)} title="编辑">
+                    <Edit3 size={14} />
+                  </IconBtn>
+                  <IconBtn onClick={trash} title="移到回收站" danger>
+                    <Trash2 size={14} />
+                  </IconBtn>
+                </>
+              )}
+              {isTrash && (
+                <>
+                  <IconBtn onClick={restore} title="恢复">
+                    <RotateCcw size={14} />
+                  </IconBtn>
+                  <IconBtn onClick={purge} title="彻底删除" danger>
+                    <Trash2 size={14} />
+                  </IconBtn>
+                </>
+              )}
+              {editing && (
+                <>
+                  <IconBtn onClick={() => { setEditing(false); setDraft(item) }} title="取消">
+                    <X size={14} />
+                  </IconBtn>
+                  <IconBtn onClick={save} title="保存">
+                    <Save size={14} />
+                  </IconBtn>
+                </>
+              )}
+            </div>
           </div>
-        </div>
 
-        {/* 面包屑：VibeCoding > 目录/分类路径 */}
-        {spacePath.length > 0 && (
-          <div className="flex items-center gap-1 text-xs text-ink-500 mb-3 flex-wrap">
-            <Link to="/vibe" className="hover:text-indigo-600">VibeCoding</Link>
-            {spacePath.map((p, i) => (
-              <span key={p.id} className="flex items-center gap-1">
-                <ChevronRight size={10} />
-                {i === spacePath.length - 1 ? (
-                  <span className="text-ink-700 font-medium">{p.name}</span>
-                ) : (
-                  <Link to={`/v/${p.id}`} className="hover:text-indigo-600">{p.name}</Link>
-                )}
+          <div className="flex items-center gap-2 mb-2 flex-wrap">
+            <Link
+              to={`/c/${item.category}`}
+              className="text-xs px-2 py-0.5 rounded-full bg-ink-100 text-ink-700 hover:bg-ink-200"
+            >
+              {cat.name}
+            </Link>
+            {item.source === 'ocr' && (
+              <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1">
+                <ScanLine size={10} /> OCR
               </span>
+            )}
+            {isOutline && (
+              <span className="text-xs px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200 flex items-center gap-1">
+                <ListTree size={10} /> 大纲
+              </span>
+            )}
+            {item.language && (
+              <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                {item.language}
+              </span>
+            )}
+            {item.tags.map(t => (
+              <span key={t} className="text-xs text-ink-500">#{t}</span>
             ))}
           </div>
-        )}
+          <h1 className="text-2xl font-bold text-ink-900 leading-tight">{item.title}</h1>
+          <div className="text-[11px] text-ink-400 mt-1">
+            创建于 {formatFull(item.createdAt)} · 更新于 {formatFull(item.updatedAt)}
+          </div>
+        </div>
 
         {editing && draft ? (
           <Editor draft={draft} setDraft={setDraft} system={system} />
         ) : (
-          <article>
-            <div className="mb-6">
-              <div className="flex items-center gap-2 mb-3 flex-wrap">
-                <Link
-                  to={`/c/${item.category}`}
-                  className="text-xs px-2 py-0.5 rounded-full bg-ink-100 text-ink-700 hover:bg-ink-200"
-                >
-                  {cat.name}
-                </Link>
-                {item.source === 'ocr' && (
-                  <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1">
-                    <ScanLine size={10} /> OCR
-                  </span>
-                )}
-                {isOutline && (
-                  <span className="text-xs px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200 flex items-center gap-1">
-                    <ListTree size={10} /> 大纲
-                  </span>
-                )}
-                {item.language && (
-                  <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
-                    {item.language}
-                  </span>
-                )}
-                {item.tags.map(t => (
-                  <span key={t} className="text-xs text-ink-500">#{t}</span>
-                ))}
-              </div>
-              <h1 className="text-3xl font-bold mb-2 text-ink-900 leading-tight">{item.title}</h1>
-              <div className="text-xs text-ink-400">
-                创建于 {formatFull(item.createdAt)} · 更新于 {formatFull(item.updatedAt)}
-              </div>
-            </div>
-
+          <article className="prose-vc">
             {item.url && (
               <a
                 href={item.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 p-3 mb-4 rounded-lg bg-cyan-50 border border-cyan-200 text-cyan-800 hover:bg-cyan-100 text-sm break-all"
+                className="not-prose flex items-center gap-2 p-3 mb-6 rounded-lg bg-cyan-50 border border-cyan-200 text-cyan-800 hover:bg-cyan-100 text-sm break-all"
               >
                 <ExternalLink size={14} className="flex-shrink-0" />
                 {item.url}
               </a>
             )}
 
-            {/* 大纲视图（如果是 OCR 大纲笔记） */}
+            {/* 大纲视图：真目录样式 */}
             {item.outline && (
-              <div className="mb-6 p-5 rounded-xl bg-gradient-to-br from-indigo-50/50 to-purple-50/50 border border-indigo-100">
-                <div className="text-xs text-indigo-700 font-medium mb-3 flex items-center gap-1">
-                  <ListTree size={12} /> 大纲结构
+              <section className="not-prose mb-8 rounded-xl border border-indigo-100 bg-gradient-to-br from-indigo-50/40 to-purple-50/30 overflow-hidden">
+                <div className="px-5 py-3 border-b border-indigo-100 bg-white/60 flex items-center gap-2">
+                  <ListTree size={13} className="text-indigo-600" />
+                  <span className="text-xs font-semibold text-indigo-900 tracking-wide uppercase">大纲</span>
                 </div>
-                <OutlineView node={item.outline} />
-              </div>
+                <div className="p-5">
+                  <OutlineView node={item.outline} depth={1} indexStr="" />
+                </div>
+              </section>
             )}
 
             {item.images.length > 0 && (
-              <div className="mb-4 grid grid-cols-1 gap-3">
+              <section className="not-prose mb-8 space-y-3">
                 {item.images.map((src, i) => (
-                  <img key={i} src={src} alt="" className="rounded-lg border border-ink-200 max-w-full" />
+                  <img key={i} src={src} alt="" className="rounded-lg border border-ink-200 max-w-full block" />
                 ))}
-              </div>
+              </section>
             )}
 
             {item.content && (
-              <div className="text-ink-800">
-                <MarkdownView content={item.content} />
-              </div>
+              <MarkdownView content={item.content} />
             )}
 
             {!isTrash && (
-              <div className="mt-8 pt-6 border-t space-y-4">
+              <div className="not-prose mt-10 pt-6 border-t space-y-5">
                 <div>
-                  <div className="text-xs text-ink-500 mb-2">移动到其他目录：</div>
+                  <div className="text-xs text-ink-500 mb-2 font-medium">移动到其他分类：</div>
                   <div className="flex flex-wrap gap-1.5">
                     {CATEGORIES.filter(c => c.id !== item.category && c.id !== 'trash').map(c => (
                       <button
@@ -243,7 +245,7 @@ export function ItemView({ system, onChange }: Props) {
                 </div>
 
                 <div>
-                  <div className="text-xs text-ink-500 mb-2 flex items-center gap-1">
+                  <div className="text-xs text-ink-500 mb-2 font-medium flex items-center gap-1">
                     <Folder size={11} /> 归档到 VibeCoding 目录：
                   </div>
                   <div className="flex flex-wrap gap-1.5">
@@ -295,38 +297,55 @@ function IconBtn({ children, onClick, title, danger }: any) {
   )
 }
 
-function OutlineView({ node }: { node: OutlineNode }) {
+function OutlineView({ node, depth, indexStr }: { node: OutlineNode, depth: number, indexStr: string }) {
   const [open, setOpen] = useState(true)
   const hasChildren = node.children.length > 0
+
+  const sizeClass =
+    depth === 1 ? 'text-base font-bold text-ink-900' :
+    depth === 2 ? 'text-[15px] font-semibold text-ink-800' :
+    depth === 3 ? 'text-sm font-medium text-ink-700' :
+    'text-sm text-ink-600'
+
   return (
-    <div className={node.level > 1 ? 'ml-4' : ''}>
+    <div className={depth > 1 ? 'ml-3 pl-4 border-l border-indigo-100/80' : ''}>
       <div
-        className={`flex items-start gap-1.5 py-1 ${hasChildren ? 'cursor-pointer hover:text-indigo-600' : ''}`}
+        className={`group flex items-start gap-2 py-1.5 ${hasChildren ? 'cursor-pointer' : ''} hover:bg-indigo-50/40 rounded -mx-1 px-1 transition`}
         onClick={() => hasChildren && setOpen(!open)}
       >
         {hasChildren ? (
-          <ChevronRight size={12} className={`mt-1.5 text-ink-400 transition-transform ${open ? 'rotate-90' : ''}`} />
+          <ChevronRight size={12} className={`mt-2 text-ink-400 transition-transform flex-shrink-0 ${open ? 'rotate-90' : ''}`} />
         ) : (
-          <span className="w-3 h-3 mt-1.5 rounded-full bg-indigo-300 flex-shrink-0" />
+          <span className="w-3 h-3 mt-2 rounded-full bg-indigo-200 flex-shrink-0" />
         )}
-        <span className={`font-medium text-ink-800 ${node.level === 1 ? 'text-base' : 'text-sm'}`}>
+        {indexStr && (
+          <span className="font-mono text-[11px] text-indigo-500 mt-1.5 flex-shrink-0 tabular-nums">
+            {indexStr}
+          </span>
+        )}
+        <span className={`flex-1 leading-snug ${sizeClass}`}>
           {node.title}
         </span>
       </div>
       {open && node.points.length > 0 && (
-        <ul className="ml-4 mt-1 space-y-0.5 text-sm text-ink-600">
+        <ul className="ml-6 mt-1 mb-2 space-y-1 text-sm text-ink-600">
           {node.points.map((p, i) => (
-            <li key={i} className="flex gap-1.5">
-              <span className="text-ink-400">·</span>
+            <li key={i} className="flex gap-2 leading-relaxed">
+              <span className="text-indigo-300 flex-shrink-0">·</span>
               <span>{p}</span>
             </li>
           ))}
         </ul>
       )}
       {open && hasChildren && (
-        <div className="ml-2 border-l border-indigo-100 pl-2">
+        <div>
           {node.children.map((c, i) => (
-            <OutlineView key={i} node={c} />
+            <OutlineView
+              key={i}
+              node={c}
+              depth={depth + 1}
+              indexStr={indexStr ? `${indexStr}.${i + 1}` : `${i + 1}`}
+            />
           ))}
         </div>
       )}
